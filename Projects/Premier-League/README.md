@@ -1,8 +1,8 @@
 ## Premier League Spending vs Performance
 
 **Original Data Sources**:  
-- [Austin Housing Prices (placeholder – replace with correct link if needed)](https://www.kaggle.com/datasets/ericpierce/austinhousingprices?utm_source=chatgpt.com)
-- [Austin Housing Prices (placeholder – replace with correct link if needed)](https://www.kaggle.com/datasets/ericpierce/austinhousingprices?utm_source=chatgpt.com)  
+- [Premier League Transfer Activity](https://github.com/ewenme/transfers/blob/master/data/premier-league.csv)
+- [Premier League Match Results](https://jaseziv.github.io/worldfootballR/articles/extract-understat-data.html?utm_source=chatgpt.com)  
 
 ---
 

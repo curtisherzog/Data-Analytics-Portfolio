@@ -1,0 +1,488 @@
+SELECT * 
+FROM transfers
+LIMIT 100
+
+SELECT * 
+FROM matches
+LIMIT 100
+
+-- Transfer Type Percentages
+
+SELECT
+  COUNT(*) FILTER (WHERE fee_cleaned IS NOT NULL 
+                   AND fee_cleaned != 'Loan' 
+                   AND fee_cleaned != '0' 
+                   AND movement != 'Out') AS paid_transfers,
+  COUNT(*) FILTER (WHERE fee_cleaned = 'Loan' AND movement != 'Out') AS num_loans,
+  COUNT(*) FILTER (WHERE fee_cleaned = '0' AND movement != 'Out') AS num_free_transfers,
+  COUNT(*) FILTER (WHERE movement != 'Out') AS total_transfers,
+  ROUND( (COUNT(*) FILTER (WHERE fee_cleaned IS NOT NULL 
+                           AND fee_cleaned != 'Loan' 
+                           AND fee_cleaned != '0' 
+                           AND movement != 'Out')::decimal / NULLIF(COUNT(*) FILTER (WHERE movement != 'Out'), 0)) * 100, 2) AS pct_paid_transfers,
+  ROUND( (COUNT(*) FILTER (WHERE fee_cleaned = 'Loan' AND movement != 'Out')::decimal / NULLIF(COUNT(*) FILTER (WHERE movement != 'Out'), 0)) * 100, 2) AS pct_loans,
+  ROUND( (COUNT(*) FILTER (WHERE fee_cleaned = '0' AND movement != 'Out')::decimal / NULLIF(COUNT(*) FILTER (WHERE movement != 'Out'), 0)) * 100, 2) AS pct_free_transfers
+FROM transfers
+WHERE season BETWEEN '2010/2011' AND '2019/2020';
+
+-- Transfer type counts and percentages (2010–2020), with total_transfers as the sum of paid, loan, and free transfers
+
+SELECT
+  COUNT(*) FILTER (
+    WHERE fee_cleaned IS NOT NULL 
+      AND fee_cleaned != 'Loan' 
+      AND fee_cleaned != '0' 
+      AND movement != 'Out'
+  ) AS paid_transfers,
+
+  COUNT(*) FILTER (
+    WHERE fee_cleaned = 'Loan' AND movement != 'Out'
+  ) AS num_loans,
+
+  COUNT(*) FILTER (
+    WHERE fee_cleaned = '0' AND movement != 'Out'
+  ) AS num_free_transfers,
+
+  (
+    COUNT(*) FILTER (
+      WHERE fee_cleaned IS NOT NULL 
+        AND fee_cleaned != 'Loan' 
+        AND fee_cleaned != '0' 
+        AND movement != 'Out'
+    )
+    +
+    COUNT(*) FILTER (
+      WHERE fee_cleaned = 'Loan' AND movement != 'Out'
+    )
+    +
+    COUNT(*) FILTER (
+      WHERE fee_cleaned = '0' AND movement != 'Out'
+    )
+  ) AS total_transfers,
+
+  ROUND(
+    COUNT(*) FILTER (
+      WHERE fee_cleaned IS NOT NULL 
+        AND fee_cleaned != 'Loan' 
+        AND fee_cleaned != '0' 
+        AND movement != 'Out'
+    )::DECIMAL
+    /
+    NULLIF(
+      COUNT(*) FILTER (
+        WHERE fee_cleaned IS NOT NULL 
+          AND fee_cleaned != 'Loan' 
+          AND fee_cleaned != '0' 
+          AND movement != 'Out'
+      )
+      +
+      COUNT(*) FILTER (
+        WHERE fee_cleaned = 'Loan' AND movement != 'Out'
+      )
+      +
+      COUNT(*) FILTER (
+        WHERE fee_cleaned = '0' AND movement != 'Out'
+      ), 0
+    ) * 100, 2
+  ) AS pct_paid_transfers,
+
+  ROUND(
+    COUNT(*) FILTER (
+      WHERE fee_cleaned = 'Loan' AND movement != 'Out'
+    )::DECIMAL
+    /
+    NULLIF(
+      COUNT(*) FILTER (
+        WHERE fee_cleaned IS NOT NULL 
+          AND fee_cleaned != 'Loan' 
+          AND fee_cleaned != '0' 
+          AND movement != 'Out'
+      )
+      +
+      COUNT(*) FILTER (
+        WHERE fee_cleaned = 'Loan' AND movement != 'Out'
+      )
+      +
+      COUNT(*) FILTER (
+        WHERE fee_cleaned = '0' AND movement != 'Out'
+      ), 0
+    ) * 100, 2
+  ) AS pct_loans,
+
+  ROUND(
+    COUNT(*) FILTER (
+      WHERE fee_cleaned = '0' AND movement != 'Out'
+    )::DECIMAL
+    /
+    NULLIF(
+      COUNT(*) FILTER (
+        WHERE fee_cleaned IS NOT NULL 
+          AND fee_cleaned != 'Loan' 
+          AND fee_cleaned != '0' 
+          AND movement != 'Out'
+      )
+      +
+      COUNT(*) FILTER (
+        WHERE fee_cleaned = 'Loan' AND movement != 'Out'
+      )
+      +
+      COUNT(*) FILTER (
+        WHERE fee_cleaned = '0' AND movement != 'Out'
+      ), 0
+    ) * 100, 2
+  ) AS pct_free_transfers
+
+FROM transfers
+WHERE season BETWEEN '2010/2011' AND '2019/2020';
+
+
+-- Total spent per club per season
+
+SELECT club, season, SUM(fee_cleaned::BIGINT) as total_spent
+FROM transfers
+WHERE fee_cleaned IS NOT null AND fee_cleaned != 'Loan' AND movement != 'Out'
+GROUP BY club, season
+ORDER BY season, club
+
+
+-- Total spent per club per last 10 seasons
+
+SELECT club, SUM(fee_cleaned::BIGINT) as total_spent
+FROM transfers
+WHERE fee_cleaned IS NOT null AND fee_cleaned != 'Loan' AND movement != 'Out'
+GROUP BY club
+ORDER BY total_spent DESC
+
+-- Total Spent AVG
+
+WITH total_spent_per_club AS (
+  SELECT 
+    club, 
+    SUM(fee_cleaned::BIGINT) AS total_spent
+  FROM transfers
+  WHERE fee_cleaned IS NOT NULL 
+    AND fee_cleaned != 'Loan' 
+    AND movement != 'Out'
+  GROUP BY club
+),
+seasons_played_per_club AS (
+  SELECT 
+    club, 
+    COUNT(DISTINCT season) AS seasons_played
+  FROM transfers
+  WHERE fee_cleaned IS NOT NULL 
+    AND fee_cleaned != 'Loan' 
+    AND movement != 'Out'
+  GROUP BY club
+)
+SELECT 
+  t.club,
+  total_spent,
+  seasons_played,
+  ROUND(total_spent::DECIMAL / seasons_played, 0) AS avg_spent_per_season
+FROM total_spent_per_club t
+JOIN seasons_played_per_club s ON t.club = s.club
+ORDER BY avg_spent_per_season DESC;
+
+
+-- Number of total transfers per club per season
+
+SELECT club, season, COUNT(*)
+FROM transfers
+WHERE movement != 'Out'
+GROUP BY club, season
+ORDER BY club, season
+
+-- Number of total transfers per club
+
+WITH transfers_per_season AS (
+  SELECT club, season, COUNT(*) AS transfers_count
+  FROM transfers
+  WHERE movement != 'Out'
+  GROUP BY club, season
+),
+seasons_per_club AS (
+  SELECT club, COUNT(DISTINCT season) AS seasons_played
+  FROM transfers_per_season
+  GROUP BY club
+),
+total_transfers_per_club AS (
+  SELECT club, SUM(transfers_count) AS total_transfers
+  FROM transfers_per_season
+  GROUP BY club
+)
+SELECT 
+  tpc.club,
+  total_transfers,
+  seasons_played,
+  ROUND((total_transfers::decimal / seasons_played), 2) AS avg_transfers_per_season
+FROM total_transfers_per_club tpc
+JOIN seasons_per_club spc ON tpc.club = spc.club
+ORDER BY avg_transfers_per_season DESC;
+
+-- Average transfer fee per club
+
+SELECT club, ROUND(AVG(fee_cleaned::BIGINT)) AS avg_transfer_fee
+FROM transfers
+WHERE fee_cleaned IS NOT null AND fee_cleaned != 'Loan' AND movement != 'Out'
+GROUP BY club
+ORDER BY avg_transfer_fee DESC
+
+-- Average transfer fee per club per season
+
+SELECT club, season, ROUND(AVG(fee_cleaned::BIGINT)) AS avg_transfer_fee
+FROM transfers
+WHERE fee_cleaned IS NOT null AND fee_cleaned != 'Loan' AND movement != 'Out'
+GROUP BY club, season
+ORDER BY avg_transfer_fee DESC
+
+
+-- Number of transfers per club per season
+
+SELECT club, season, count(*)
+FROM transfers
+WHERE fee_cleaned IS NOT null AND fee_cleaned != 'Loan' AND movement != 'Out' AND fee_cleaned != '0'
+GROUP BY club, season
+ORDER BY club, season
+
+-- Average transfer fee per player per club
+
+SELECT club, ROUND(AVG(fee_cleaned::BIGINT)) AS avg_transfer_fee
+FROM transfers
+WHERE fee_cleaned IS NOT null AND fee_cleaned != 'Loan' AND movement != 'Out'
+GROUP BY club
+ORDER BY club
+
+-- Free transfers and loans 
+
+SELECT club, season, COUNT(*) FILTER (WHERE fee_cleaned = 'Loan') AS num_loans, COUNT(*) FILTER (WHERE fee_cleaned::TEXT = '0') AS num_free_transfers 
+FROM transfers
+WHERE fee_cleaned IS NOT null AND movement != 'Out'
+GROUP BY club, season
+ORDER BY club, season
+
+-- Spending by position
+
+SELECT club, pos, ROUND(AVG(fee_cleaned::BIGINT)) AS avg_price
+FROM transfers
+WHERE fee_cleaned IS NOT null AND fee_cleaned != 'Loan' AND movement != 'Out' AND fee_cleaned != '0'
+GROUP BY club, pos
+ORDER BY club
+
+-- Top ten transfers per season
+
+SELECT season, club, name, fee_cleaned
+FROM(
+	SELECT *, ROW_NUMBER() OVER (PARTITION BY season ORDER BY fee_cleaned::BIGINT DESC) AS rank
+	FROM transfers 
+	WHERE fee_cleaned IS NOT null AND fee_cleaned != 'Loan' AND movement != 'Out' AND fee_cleaned != '0'
+	) AS ranked
+WHERE rank <=10
+ORDER BY season, rank
+
+-- Club spend vs attendance
+
+SELECT t.club, t.season, SUM(t.fee_cleaned::BIGINT) as total_spent, ROUND(AVG(m.attendance::INT)) AS avg_attendance
+FROM transfers t
+JOIN matches m ON  (t.club  = m.home OR t.club = m.away)
+WHERE fee_cleaned IS NOT null AND fee_cleaned != 'Loan' AND movement != 'Out'
+GROUP BY t.club, t.season
+ORDER BY avg_attendance DESC
+
+-- Club performance per season
+
+SELECT season, team, SUM(points) AS total_points, COUNT(*) AS games_played
+FROM (
+    SELECT 
+        season, home AS team,
+        CASE 
+            WHEN home_goals > away_goals THEN 3
+            WHEN home_goals = away_goals THEN 1
+            ELSE 0
+        END AS points
+    FROM matches
+
+    UNION ALL
+
+    SELECT 
+        season, away AS team,
+        CASE 
+            WHEN away_goals > home_goals THEN 3
+            WHEN away_goals = home_goals THEN 1
+            ELSE 0
+        END AS points
+    FROM matches
+) AS results
+WHERE season BETWEEN '2010/2011' AND '2019/2020' AND team IS NOT null
+GROUP BY team, season
+ORDER BY season, total_points DESC;
+
+-- League Positions
+
+WITH all_results AS (
+    -- Home team results
+    SELECT
+        season,
+        home AS team,
+        home_goals AS goals_for,
+        away_goals AS goals_against,
+        CASE
+            WHEN home_goals > away_goals THEN 3
+            WHEN home_goals = away_goals THEN 1
+            ELSE 0
+        END AS points
+    FROM matches
+
+    UNION ALL
+
+    -- Away team results
+    SELECT
+        season,
+        away AS team,
+        away_goals AS goals_for,
+        home_goals AS goals_against,
+        CASE
+            WHEN away_goals > home_goals THEN 3
+            WHEN away_goals = home_goals THEN 1
+            ELSE 0
+        END AS points
+    FROM matches
+),
+
+team_totals AS (
+    SELECT
+        season,
+        team,
+        SUM(points) AS total_points,
+        SUM(goals_for) AS goals_for,
+        SUM(goals_against) AS goals_against,
+        SUM(goals_for) - SUM(goals_against) AS goal_difference
+    FROM all_results
+    WHERE season BETWEEN '2010/2011' AND '2019/2020'
+    GROUP BY season, team
+),
+
+ranked_table AS (
+    SELECT
+        *,
+        RANK() OVER (
+            PARTITION BY season
+            ORDER BY total_points DESC, goal_difference DESC, goals_for DESC
+        ) AS league_position
+    FROM team_totals
+)
+
+SELECT *
+FROM ranked_table
+ORDER BY season, league_position;
+
+-- BIG JOIN FOR CORRELATIONS
+WITH all_results AS (
+    -- Home matches
+    SELECT
+        season,
+        home AS team,
+        home_goals AS goals_for,
+        away_goals AS goals_against,
+        CASE
+            WHEN home_goals > away_goals THEN 3
+            WHEN home_goals = away_goals THEN 1
+            ELSE 0
+        END AS points
+    FROM matches
+	WHERE home IS NOT null
+
+    UNION ALL
+
+    -- Away matches
+    SELECT
+        season,
+        away AS team,
+        away_goals AS goals_for,
+        home_goals AS goals_against,
+        CASE
+            WHEN away_goals > home_goals THEN 3
+            WHEN away_goals = home_goals THEN 1
+            ELSE 0
+        END AS points
+    FROM matches
+	WHERE away IS NOT null
+),
+
+team_performance AS (
+    SELECT
+        season,
+        team,
+        SUM(points) AS total_points,
+        SUM(goals_for) AS goals_for,
+        SUM(goals_against) AS goals_against,
+        SUM(goals_for) - SUM(goals_against) AS goal_difference
+    FROM all_results
+    WHERE season BETWEEN '2010/2011' AND '2019/2020'
+    GROUP BY season, team
+),
+
+ranked_table AS (
+    SELECT
+        *,
+        RANK() OVER (
+            PARTITION BY season
+            ORDER BY total_points DESC, goal_difference DESC, goals_for DESC
+        ) AS league_position
+    FROM team_performance
+),
+
+transfer_spending AS (
+    SELECT
+        club,
+        (season || '/' || (CAST(season AS INTEGER) + 1)::TEXT) AS season,
+        SUM(fee_cleaned::BIGINT) AS total_spent
+    FROM transfers
+    WHERE fee_cleaned IS NOT NULL
+      AND fee_cleaned != 'Loan'
+      AND movement != 'Out'
+      AND CAST(season AS INTEGER) BETWEEN 2010 AND 2019
+    GROUP BY club, season
+)
+
+SELECT 
+    r.season,
+    r.team,
+    r.total_points,
+    r.goals_for,
+    r.goals_against,
+    r.goal_difference,
+    r.league_position,
+    s.total_spent
+FROM ranked_table r
+LEFT JOIN transfer_spending s
+  ON r.season = s.season
+  AND (
+    r.team = s.club
+    OR (r.team = 'Arsenal' AND s.club = 'Arsenal FC')
+    OR (r.team = 'Bournemouth' AND s.club = 'AFC Bournemouth')
+    OR (r.team = 'Blackburn' AND s.club = 'Blackburn Rovers')
+    OR (r.team = 'Blackpool' AND s.club = 'Blackpool FC')
+    OR (r.team = 'Bolton' AND s.club = 'Bolton Wanderers')
+    OR (r.team = 'Brighton' AND s.club = 'Brighton & Hove Albion')
+    OR (r.team = 'Burnley' AND s.club = 'Burnley FC')
+    OR (r.team = 'Chelsea' AND s.club = 'Chelsea FC')
+    OR (r.team = 'Everton' AND s.club = 'Everton FC')
+    OR (r.team = 'Fulham' AND s.club = 'Fulham FC')
+    OR (r.team = 'Huddersfield' AND s.club = 'Huddersfield Town')
+    OR (r.team = 'Liverpool' AND s.club = 'Liverpool FC')
+    OR (r.team = 'Manchester Utd' AND s.club = 'Manchester United')
+    OR (r.team = 'Middlesbrough' AND s.club = 'Middlesbrough FC')
+    OR (r.team = 'Newcastle Utd' AND s.club = 'Newcastle United')
+    OR (r.team = 'QPR' AND s.club = 'Queens Park Rangers')
+    OR (r.team = 'Reading' AND s.club = 'Reading FC')
+    OR (r.team = 'Sheffield Utd' AND s.club = 'Sheffield United')
+    OR (r.team = 'Southampton' AND s.club = 'Southampton FC')
+    OR (r.team = 'Sunderland' AND s.club = 'Sunderland AFC')
+    OR (r.team = 'Tottenham' AND s.club = 'Tottenham Hotspur')
+    OR (r.team = 'Watford' AND s.club = 'Watford FC')
+    OR (r.team = 'West Brom' AND s.club = 'West Bromwich Albion')
+    OR (r.team = 'West Ham' AND s.club = 'West Ham United')
+    OR (r.team = 'Wolves' AND s.club = 'Wolverhampton Wanderers')
+  )
+ORDER BY r.season, r.league_position;

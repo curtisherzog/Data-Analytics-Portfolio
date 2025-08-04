@@ -26,9 +26,9 @@
 
 ### **Tools Used**
 
+- **Excel** – initial inspection and cleaning  
 - **SQL (pgAdmin)** – joins, aggregations, and data cleaning  
 - **Python (Pandas, Seaborn, Matplotlib)** – plotting and correlation analysis  
-- **Excel** – initial inspection and cleaning  
 - **Tableau** – dashboards showing club spend vs league performance
 
 ---

@@ -6,14 +6,15 @@
 
 ---
 
-### 🏁 **Goal**
+### **Goal**
 
-**The goal of this project was to write more advanced SQL queries to join two datasets together and determine the correlation between financial investment and success in the Premier League.**  
+**The goal of this project was to write more advanced SQL queries to join two datasets together and determine the correlation between financial investment and success in the Premier League.**
+
 **I created visualizations of teams’ transfer activity and league performance, and used Python to calculate statistical correlations between spending and success.**
 
 ---
 
-### 📄 **Description**
+### **Description**
 
 **This project combines two main datasets:**
 - **Premier League match results from 1990 onward, including goals for and against**
@@ -23,7 +24,7 @@
 
 ---
 
-### 🛠️ **Tools Used**
+### **Tools Used**
 
 - **SQL (pgAdmin)** – joins, aggregations, and data cleaning  
 - **Python (Pandas, Seaborn, Matplotlib)** – plotting and correlation analysis  
@@ -32,7 +33,7 @@
 
 ---
 
-### 📊 **Results**
+### **Results**
 
 - **Correlation between previous year’s total spend and league position**: **-0.472**  
   *(Note: Negative because higher league position = lower number)*  

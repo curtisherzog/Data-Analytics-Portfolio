@@ -43,5 +43,4 @@ This portfolio showcases a collection of projects that highlight both my technic
 
 ## 📬 Contact
 - **Email:** [curtzog@gmail.com](mailto:curtzog@gmail.com)  
-- **LinkedIn:** [Add your LinkedIn URL here]  
-- **Portfolio Website:** [Add your website URL here]
+- **LinkedIn:** [https://www.linkedin.com/in/curtis-herzog-abb877174/]  

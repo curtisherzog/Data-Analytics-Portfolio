@@ -8,7 +8,7 @@ This portfolio showcases a collection of projects that highlight both my technic
 
 ---
 
-## 📚 Table of Contents
+## Table of Contents
 - [About Me](#about-me)
 - [Projects](#projects)
 - [Certifications](#certifications)

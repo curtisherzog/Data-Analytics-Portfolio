@@ -1,0 +1,111 @@
+-- All
+
+SELECT *
+FROM austin_housing 
+LIMIT 10
+
+-- Avg home price vs number of bedrooms
+
+SELECT numofbedrooms, ROUND(AVG(latestprice)) AS avg_price
+FROM austin_housing
+GROUP BY numofbedrooms
+ORDER BY numofbedrooms
+
+-- Avg home price vs number of bathrooms
+
+SELECT numofbathrooms, ROUND(AVG(latestprice)) AS avg_price
+FROM austin_housing
+GROUP BY numofbathrooms
+ORDER BY numofbathrooms
+
+-- Price per square foot by zip code
+
+SELECT zipcode, latestprice/livingareasqft AS price_per_sqft
+FROM austin_housing
+WHERE latestprice IS NOT null AND livingareasqft IS NOT null AND livingareasqft>0
+ORDER BY zipcode, price_per_sqft DESC
+
+-- Average price per square foot by zip code
+
+SELECT zipcode, ROUND(AVG(latestprice/livingareasqft)) AS avg_price_per_sqft
+FROM austin_housing
+WHERE latestprice IS NOT null AND livingareasqft IS NOT null AND livingareasqft>0
+GROUP BY zipcode
+ORDER BY avg_price_per_sqft DESC
+
+-- Lot size vs price 
+
+SELECT latestprice AS price, lotsizesqft AS lot, ROUND(latestprice/lotsizesqft) AS price_per_lot_sqft
+FROM austin_housing
+ORDER BY price_per_lot_sqft DESC
+
+-- Avg price per lot size by zip code
+
+SELECT zipcode, ROUND(AVG(latestprice/lotsizesqft)) AS avg_price_per_lot_sqft
+FROM austin_housing
+GROUP BY zipcode
+ORDER BY avg_price_per_lot_sqft DESC
+
+-- Top 10 most expensive zip codes (by avg price)
+
+SELECT zipcode, ROUND(AVG(latestprice)) AS avg_price
+FROM austin_housing
+GROUP BY zipcode
+ORDER BY avg_price DESC
+LIMIT 10
+
+-- Do home's with garages cost more?
+
+SELECT hasgarage, ROUND(AVG(latestprice))
+FROM austin_housing
+GROUP BY hasgarage
+
+-- Garage spaces vs avg price
+
+SELECT garagespaces, ROUND(AVG(latestprice)) AS avg_price
+FROM austin_housing
+GROUP BY garagespaces
+ORDER BY garagespaces DESC
+
+-- Home price by month/year
+
+SELECT latest_salemonth, latest_saleyear, ROUND(AVG(latestprice)) AS avg_price, COUNT(*) AS num_sales
+FROM austin_housing
+WHERE latestPrice IS NOT NULL AND latest_saleyear IS NOT NULL AND latest_salemonth IS NOT NULL
+GROUP BY latest_salemonth, latest_saleyear
+ORDER BY avg_price DESC
+
+-- Home types vs price
+
+SELECT hometype, ROUND(AVG(latestprice)) AS avg_price
+FROM austin_housing
+GROUP BY hometype
+ORDER BY avg_price DESC
+
+-- Age of home vs price
+
+SELECT yearbuilt, ROUND(AVG(latestprice)) AS avg_price
+FROM austin_housing
+GROUP BY yearbuilt
+ORDER BY avg_price DESC
+
+-- HOA vs price
+
+SELECT hasassociation, ROUND(AVG(latestprice))
+FROM austin_housing
+GROUP BY hasassociation
+
+-- Price volatility (number of price changes vs final price)
+
+SELECT numpricechanges, ROUND(AVG(latestprice)) AS avg_price, COUNT(*) AS num_homes
+FROM austin_housing
+WHERE latestPrice IS NOT NULL AND numPriceChanges IS NOT NULL
+GROUP BY numpricechanges
+ORDER BY avg_price DESC
+
+-- School ratings vs home prices
+
+SELECT avgschoolrating, ROUND(AVG(latestprice)) AS avg_price
+FROM austin_housing
+GROUP BY avgschoolrating
+ORDER BY avgschoolrating DESC

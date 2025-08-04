@@ -1,0 +1,159 @@
+-- All
+
+SELECT *
+FROM co2_data
+
+-- Global total emissions per year
+
+SELECT country, year, co2,
+SUM(co2) OVER (PARTITION BY country ORDER BY year ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as co2_running_total
+FROM co2_data
+WHERE co2 IS NOT null AND country LIKE 'World'
+ORDER BY year
+
+-- CO2 emissions by country over time
+
+SELECT country, year, co2, 
+SUM(co2) OVER (PARTITION BY country ORDER BY year ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as co2_running_total
+FROM co2_data
+WHERE co2 IS NOT null
+
+-- CO2 emissions by continent over time
+
+SELECT country, year, co2,
+SUM(co2) OVER (PARTITION BY country ORDER BY year ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as co2_running_total
+FROM co2_data
+WHERE co2 IS NOT null 
+AND (country = 'Africa' OR country = 'North America' OR country = 'South America' OR country = 'Europe' OR country = 'Asia' OR country = 'Australia' OR country = 'Antarctica')
+ORDER BY country
+
+-- SUM of CO2 emissions by continent
+
+SELECT country, co2,
+SUM(co2) OVER (ORDER BY year) as continent_co2_sum
+FROM co2_data
+WHERE co2 IS NOT null 
+AND (country = 'Africa' OR country = 'North America' OR country = 'South America' OR country = 'Europe' OR country = 'Asia' OR country = 'Australia' OR country = 'Antarctica')
+ORDER BY country
+
+
+-- Decade-level aggregation
+
+SELECT country, ((year / 10) * 10)::text || 's' AS decade, SUM(co2) AS total_emissions
+FROM co2_data
+WHERE country NOT IN ('World', 'Non-OECD (GCP)', 'Asia', 'Asia (GCP)', 'High-income countries', 'Upper-middle-income countries', 'Lower-middle-income countries','OECD (GCP)', 'Europe', 'Europe (GCP)', 'North America', 'North America (GCP)', 'South America', 'South America (GCP)', 'European Union (28)', 'European Union (27)', 'Europe (excl. EU-28)', 'Europe (excl. EU-27)')
+GROUP BY country, ((year / 10) * 10)
+HAVING SUM(co2) IS NOT null
+ORDER BY total_emissions DESC
+
+-- Top emitting countries all time
+
+SELECT country, MAX(co2_running_total) AS max_co2
+FROM (
+SELECT country, SUM(co2) OVER (PARTITION BY country ORDER BY year ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS co2_running_total
+FROM co2_data
+WHERE co2 IS NOT null) AS sub
+GROUP BY country
+ORDER BY max_co2 DESC
+
+-- Top emitting countries all time per capita 
+
+SELECT country, MAX(tons_per_million_person) AS tons_per_million_person_max
+FROM(
+SELECT country, co2, population,
+ROUND((SUM(co2) OVER (PARTITION BY country ORDER BY year ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)/NULlIF(population, 0)) * 1e6, 2) AS tons_per_million_person
+FROM co2_data
+WHERE co2 IS NOT null AND population IS NOT null) AS sub
+GROUP BY country
+ORDER BY tons_per_million_person_max DESC
+
+-- Countries with the highest increases over the last 25 years
+
+WITH recent_year AS (SELECT MAX(year) AS max_year FROM co2_data
+),
+filtered_data AS (
+  SELECT country, year, SUM(co2) AS total_emissions
+  FROM co2_data
+  JOIN recent_year ON year BETWEEN (max_year - 24) AND max_year
+  WHERE co2 IS NOT NULL AND year IS NOT NULL
+  GROUP BY country, year
+),
+first_last_years AS (
+  SELECT country, MIN(year) AS start_year, MAX(year) AS end_year
+  FROM filtered_data
+  GROUP BY country
+),
+start_emissions AS (
+  SELECT fd.country, fd.total_emissions AS start_emissions
+  FROM filtered_data fd
+  JOIN first_last_years fl ON fd.country = fl.country AND fd.year = fl.start_year
+),
+end_emissions AS (
+  SELECT fd.country, fd.total_emissions AS end_emissions
+  FROM filtered_data fd
+  JOIN first_last_years fl ON fd.country = fl.country AND fd.year = fl.end_year
+)
+SELECT fl.country, fl.start_year, fl.end_year, se.start_emissions, ee.end_emissions,
+  (ee.end_emissions - se.start_emissions) AS absolute_increase,
+  ROUND(((ee.end_emissions - se.start_emissions) / NULLIF(se.start_emissions, 0)::numeric) * 100, 2) AS percent_increase
+FROM first_last_years fl
+JOIN start_emissions se ON fl.country = se.country
+JOIN end_emissions ee ON fl.country = ee.country
+WHERE ROUND(((ee.end_emissions - se.start_emissions) / NULLIF(se.start_emissions, 0)::numeric) * 100, 2) IS NOT null
+ORDER BY percent_increase DESC
+LIMIT 10;
+
+
+-- Countries with the highest decreases over the last 25 years
+
+WITH recent_year AS (SELECT MAX(year) AS max_year FROM co2_data
+),
+filtered_data AS (
+  SELECT country, year, SUM(co2) AS total_emissions
+  FROM co2_data
+  JOIN recent_year ON year BETWEEN (max_year - 24) AND max_year
+  WHERE co2 IS NOT NULL AND year IS NOT NULL
+  GROUP BY country, year
+),
+first_last_years AS (
+  SELECT country, MIN(year) AS start_year, MAX(year) AS end_year
+  FROM filtered_data
+  GROUP BY country
+),
+start_emissions AS (
+  SELECT fd.country, fd.total_emissions AS start_emissions
+  FROM filtered_data fd
+  JOIN first_last_years fl ON fd.country = fl.country AND fd.year = fl.start_year
+),
+end_emissions AS (
+  SELECT fd.country, fd.total_emissions AS end_emissions
+  FROM filtered_data fd
+  JOIN first_last_years fl ON fd.country = fl.country AND fd.year = fl.end_year
+)
+SELECT fl.country, fl.start_year, fl.end_year, se.start_emissions, ee.end_emissions,
+  (ee.end_emissions - se.start_emissions) AS absolute_increase,
+  ROUND(((ee.end_emissions - se.start_emissions) / NULLIF(se.start_emissions, 0)::numeric) * 100, 2) AS percent_increase
+FROM first_last_years fl
+JOIN start_emissions se ON fl.country = se.country
+JOIN end_emissions ee ON fl.country = ee.country
+WHERE ROUND(((ee.end_emissions - se.start_emissions) / NULLIF(se.start_emissions, 0)::numeric) * 100, 2) IS NOT null
+ORDER BY percent_increase
+LIMIT 10;
+
+-- % coal, % oil, % gas by year
+
+SELECT country, year, co2, coal_co2, 
+ROUND((coal_co2/NULLIF(co2,0))*100, 2) AS coal_percent,
+gas_co2,
+ROUND((gas_co2/NULLIF(co2,0))*100, 2) AS gas_percent, 
+oil_co2,
+ROUND((oil_co2/NULLIF(co2,0))*100, 2) AS oil_percent
+FROM co2_data
+WHERE co2 IS NOT null
+
+-- GDP vs Emissions
+
+SELECT country, year, gdp, co2,
+SUM(co2) OVER (PARTITION BY country ORDER BY year ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as co2_running_total
+FROM co2_data
+WHERE co2 IS NOT null AND gdp IS NOT null

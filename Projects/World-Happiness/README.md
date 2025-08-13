@@ -42,7 +42,7 @@
 ---
 
 ### **Results**
-*(Note: Negative because a higher GDP per capita is linked to a lower rank number, meaning a happier country)*  
+*(Note: Negative results are because because a lower number rank results in a happier country)*  
 
 - **Correlation between Rank and GDP per Capita**: **-0.779976**
 - **Correlation between Rank and Social Support**: **-0.772974**

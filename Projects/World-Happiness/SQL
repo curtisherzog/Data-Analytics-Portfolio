@@ -1,1 +1,87 @@
+-- All
 
+SELECT *
+FROM world_happiness
+
+-- Countries by happiness ranked
+
+SELECT rank, country_name, score
+FROM world_happiness
+ORDER BY rank
+
+-- Top 10 happiest countries
+
+SELECT rank, country_name
+FROM world_happiness
+ORDER BY rank
+LIMIT 10
+
+-- Bottom 10 happiest countries
+
+SELECT rank, country_name
+FROM world_happiness
+ORDER BY rank DESC
+LIMIT 10
+
+-- Score vs GDP
+
+SELECT rank, country_name, score, gdp_per_capita
+FROM world_happiness
+WHERE gdp_per_capita > 0
+
+-- Score vs Life Expectancy
+
+SELECT score, country_name, healthy_life_expectancy
+FROM world_happiness
+WHERE healthy_life_expectancy IS NOT null
+
+-- Score by GDP and Social Support
+
+SELECT score, country_name, gdp_per_capita, social_support
+FROM world_happiness
+WHERE gdp_per_capita>0 AND social_support>0
+
+------------------------------------------------------------Correlations Below 
+
+-- Rank vs GDP Per Capita
+
+SELECT rank, country_name, gdp_per_capita
+FROM world_happiness
+WHERE gdp_per_capita IS NOT null
+
+-- Rank vs Social Support
+
+SELECT rank, country_name, social_support
+FROM world_happiness
+WHERE social_support IS NOT null
+
+
+-- Rank vs Healthy Life Expectancy
+
+SELECT rank, country_name, healthy_life_expectancy
+FROM world_happiness
+WHERE healthy_life_expectancy IS NOT null
+
+-- Rank vs Freedom
+
+SELECT rank, country_name, freedom
+FROM world_happiness
+WHERE freedom IS NOT null
+
+-- Rank vs Generocity
+
+SELECT rank, country_name, generosity
+FROM world_happiness
+WHERE generosity IS NOT null
+
+-- Rank vs Corruption Perception
+
+SELECT rank, country_name, corruption_perception
+FROM world_happiness
+WHERE corruption_perception IS NOT null
+
+-- Rank vs Dystopia
+
+SELECT rank, country_name, dystopia
+FROM world_happiness
+WHERE dystopia IS NOT null

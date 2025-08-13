@@ -36,13 +36,6 @@ This portfolio showcases a collection of projects that highlight both my technic
 
 ---
 
-## Certifications
-- Google Data Analytics Certificate  
-- SQL for Data Science (Coursera)  
-- Excel Skills for Business (Macquarie University)  
-
----
-
 ## Education
 **Miami University**, Bachelor of Science, 2017–2021
 

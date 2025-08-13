@@ -30,7 +30,7 @@ This portfolio showcases a collection of projects that highlight both my technic
 **Tools:** Excel, SQL, Python, Tableau  
 **Description:** An investigation into the relationship between transfer market spending and league performance from 2010–2020. Includes correlation analysis and Tableau dashboards.
 
-### 4. [Premier League Spending vs Performance](Projects/World-Happiness)  
+### 4. [World Happiness Analysis](Projects/World-Happiness)  
 **Tools:** Excel, SQL, Python, Tableau  
 **Description:** An exploration of global happiness scores and their relationship to factors such as GDP per capita, social support, and life expectancy. Includes Tableau visualizations (maps, scatter plots, bubble charts) and Python correlation analysis.
 

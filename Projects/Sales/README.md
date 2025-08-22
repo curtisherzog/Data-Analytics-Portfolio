@@ -19,19 +19,34 @@ Retailers like Walmart generate massive volumes of weekly sales across hundreds 
 
 ### **Methodology**
 
+1. Explore the raw data to examine what correlations and analyses can be examined
 
+2. Data wrangling ensure consistent formatting and complete data prior to exploration
+
+3. Build SQL queries to aggregate and organize data in useful sets to perform correlation and regression analyses
+
+4. Analyze and compare trends in python to explore various findings among the data set
+
+5. Build a Tableau dashboard to visualize these findings
 
 ---
 
 ### **Skills Used**
 
+SQL: Aggregate Functions, CTEs, Joins
 
+Python: Pandas, Seaborn, Matplotlib, Numpy, Statsmodels.api, Correlations, Regression Analysis
+
+Tableau: 
 
 ---
 
 ### **Results & Business Recommendations**
 
+
+
 ---
 
 ### **Next Steps**
+
 

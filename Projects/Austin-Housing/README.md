@@ -7,6 +7,7 @@
 ### **Summary**
 
 This project analyzes over 15,000 home listings in the Austin, Texas housing market to determine which property features most influence home prices. Correlation analysis shows that bathrooms and bedrooms are the strongest predictors of price, while year built has little effect. The results highlight that buyer preferences lean heavily toward functional home features (bathrooms, bedrooms, and school quality) over age of the property.
+
 ---
 
 ### **Overview & Goals**

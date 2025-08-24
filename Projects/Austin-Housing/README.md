@@ -67,7 +67,7 @@ Key Findings
 - Year built had almost no correlation (0.060)
 
 
-Business Recommendations
+Insights
 
 - Listings should emphasize bathrooms and bedrooms in marketing, as they drive value perception.
 

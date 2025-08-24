@@ -1,0 +1,136 @@
+SELECT *
+FROM walmart_sales
+
+-- Python Correlations --------------------------------------------------------
+
+-- Sales vs Holidays
+
+SELECT weekly_sales, holiday_flag
+FROM walmart_sales
+ORDER BY weekly_sales DESC
+
+-- Sales vs Fuel Price
+
+SELECT weekly_sales, fuel_price
+FROM walmart_sales
+ORDER BY weekly_sales DESC
+
+-- Sales vs CPI
+
+SELECT weekly_sales, cpi
+FROM walmart_sales
+ORDER BY weekly_sales DESC
+
+-- Sales vs Unemployment
+
+SELECT weekly_sales, unemployment
+FROM walmart_sales
+ORDER BY weekly_sales DESC
+
+-- Sales vs Temperature
+
+SELECT weekly_sales, temperature
+FROM walmart_sales
+ORDER BY weekly_sales DESC
+
+-- Sales vs All The Above
+
+SELECT weekly_sales, holiday_flag, fuel_price, cpi, unemployment, temperature
+FROM walmart_sales
+ORDER BY weekly_sales DESC
+
+-- Python Regression --------------------------------------------------------
+
+SELECT store, weekly_sales, holiday_flag, fuel_price, cpi, unemployment, temperature
+FROM walmart_sales
+
+-- Tableau --------------------------------------------------------
+
+-- Weekly sales over time LINE
+
+SELECT store, date, SUM(weekly_sales) AS total_sales, holiday_flag
+FROM walmart_sales
+GROUP BY store, date, holiday_flag
+ORDER BY total_sales DESC
+
+-- Store rankings (SUM) BAR 
+
+SELECT store, SUM(weekly_sales) as total_sales
+FROM walmart_sales
+GROUP BY store
+ORDER BY total_sales DESC
+
+-- Holiday impact TABLE
+
+SELECT ROUND(AVG(weekly_sales)) AS avg_weekly_sales, holiday_flag
+FROM walmart_sales
+GROUP BY holiday_flag
+
+-- Holiday impact by store BOX
+
+SELECT ROUND(AVG(weekly_sales)) AS avg_weekly_sales, holiday_flag, store
+FROM walmart_sales
+GROUP BY holiday_flag, store
+ORDER BY store DESC
+
+-- Holiday and Sales no Avg
+
+SELECT weekly_sales, holiday_flag, store
+FROM walmart_sales
+ORDER BY store DESC
+
+-- External factors SCATTER PLOT
+
+SELECT Date, Store, Weekly_Sales, CPI, Unemployment, Fuel_Price, Temperature
+FROM walmart_sales
+
+-- Filters / Interactivity
+
+SELECT Store, Date, Holiday_Flag
+FROM walmart_sales
+
+-- Top sales weeks (all stores) HIGHLIGHT TABLE/BAR
+
+SELECT date, SUM(weekly_sales) AS total_weekly_sales, holiday_flag
+FROM walmart_sales
+GROUP BY date, holiday_flag
+ORDER BY total_weekly_sales DESC
+LIMIT 10;
+
+-- Top sales weeks with store HIGHLIGHT TABLE/BAR
+
+SELECT date, store, SUM(weekly_sales) AS total_weekly_sales, holiday_flag
+FROM walmart_sales
+GROUP BY date, holiday_flag, store
+ORDER BY total_weekly_sales DESC
+LIMIT 10;
+	
+-- Sales by month HEAT MAP
+
+SELECT EXTRACT(YEAR FROM date) AS year, EXTRACT(MONTH FROM date) AS month, SUM(weekly_sales) AS total_weekly_sales, AVG(weekly_sales) AS avg_weekly_sales
+FROM walmart_sales
+GROUP BY year, month
+ORDER BY total_weekly_sales DESC
+
+-- Others --------------------------------------------------------
+
+-- Stores ranked by avg weekly sales
+
+SELECT store, AVG(weekly_sales) as avg_weekly_sales
+FROM walmart_sales
+GROUP BY store
+ORDER BY avg_weekly_sales DESC
+
+-- Stores ranked by total weekly sales
+
+SELECT store, SUM(weekly_sales) as total_sales
+FROM walmart_sales
+GROUP BY store
+ORDER BY total_weekly_sales DESC
+
+-- sales by holiday AVERAGE
+
+SELECT AVG(weekly_sales), holiday_flag
+FROM walmart_sales
+GROUP BY holiday_flag
+

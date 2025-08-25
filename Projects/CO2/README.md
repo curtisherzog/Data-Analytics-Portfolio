@@ -4,27 +4,64 @@
 
 ---
 
-### Goal  
-The goal of this project was to explore CO₂ emissions by country and continent, and analyze how various factors—such as GDP and population—relate to changes in emissions over time. This was my first complete project using the full data analytics stack: Excel, SQL, Python, and Tableau. I focused on both learning the tools and uncovering meaningful insights from the data.
+### Summary  
+This project explores global CO₂ emissions by country and continent, analyzing how factors such as GDP, population, and fuel usage contribute to emission trends over time. Correlation analysis reveals a very strong relationship between GDP and CO₂ emissions, emphasizing the link between economic growth and environmental impact.
 
 ---
 
-### Description  
-This project uses a global dataset containing yearly data on CO₂ output, emissions by fuel type, population, temperature change, and economic indicators.  
+### Overview & Goal
+The purpose of this project was to investigate long-term patterns in CO₂ emissions and identify key drivers of global and regional differences. By connecting emissions data with economic and demographic indicators, the project highlights both the scale of the climate challenge and the underlying dynamics that shape it.
 
-After cleaning and inspecting the data, I wrote SQL queries to examine which countries had increases or decreases in CO₂ emissions, how these trends varied by continent, and how emissions related to GDP. I used Python to run correlation analyses and create visualizations, and Tableau to design dashboards highlighting global, regional, and time-based trends in emissions.
+---
+### Methodology
+Data Cleaning & Exploration
+- Standardized emissions and GDP metrics for consistency.
+- Handled missing values and ensured proper country/continent mappings.
+
+SQL Analysis
+- Aggregated emissions by country and continent.
+- Identified top contributors to global emissions.
+- Examined decade-level changes in emissions trends.
+
+Python Analysis
+- Correlation analysis between GDP, population, and CO₂ emissions.
+- Scatter plots and time-series visualizations.
+- Comparative breakdowns by fuel type and per-capita emissions.
+
+Tableau Visualization
+Built interactive dashboards to highlight:
+- Global and regional emission trends over time.
+- Top emitters and low-emission countries.
+- GDP vs. CO₂ scatter plots.
+- Fuel-type contributions to emissions growth.
 
 ---
 
-### Tools Used  
-- **Excel** – initial inspection and formatting  
-- **SQL (pgAdmin)** – filtering, grouping, and aggregating emissions data  
-- **Python (Pandas, Seaborn, Matplotlib)** – plotting and correlation analysis  
-- **Tableau** – visualizations of global CO₂ trends and country comparisons  
+### Skills Used  
+- SQL: Filtering, grouping, aggregations, and joins across indicators.
+- Python (Pandas, Matplotlib, Seaborn): Correlation analysis, scatter plots, trend lines.
+- Tableau: Interactive dashboards and comparative visualizations.
+- Excel: Initial inspection and dataset formatting.
 
 ---
 
-### Results  
-- Correlation between GDP and CO₂ emissions: **0.965**  
-This very strong positive correlation suggests that countries with higher GDPs tend to produce more CO₂ emissions, highlighting the link between economic activity and environmental impact.
+### Results & Imsights
+Key Findings
+- Very strong positive correlation between GDP and CO₂ emissions (0.965).
+- Population alone showed weaker correlation than GDP, suggesting economic activity drives emissions more than population size.
+- Oil and coal remain the largest fuel-based contributors globally, though natural gas is steadily increasing.
+- Europe and North America show signs of decoupling emissions from GDP, while Asia shows the steepest growth trajectory.
 
+Implications
+- Economic growth remains closely tied to emissions, making decarbonization strategies critical for sustainable development.
+- Regions transitioning faster to renewable energy may serve as models for balancing growth and sustainability.
+- Policymakers can use per-capita and per-GDP metrics to better assess equity in climate negotiations.
+
+---
+
+### Next Steps
+- Expand analysis to include methane and nitrous oxide emissions.
+- Incorporate renewable energy adoption data for comparison.
+- Build predictive models for emissions under different economic growth scenarios.
+
+---
